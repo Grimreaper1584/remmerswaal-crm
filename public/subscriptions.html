@@ -1,0 +1,100 @@
+<meta charset="UTF-8">
+<title>Abonnementen — Remmerswaal Security CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-mount"></aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Abonnementen</h1>
+        <div class="subtitle">Actieve retainer subscripties en verlengingen</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" id="add-sub-btn">+ Nieuw abonnement</button>
+      </div>
+    </div>
+
+    <div id="renewal-alerts"></div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Klant</th>
+              <th>Dienst</th>
+              <th class="right">Per maand</th>
+              <th>Startdatum</th>
+              <th>Volgende factuur</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="subs-tbody">
+            <tr class="empty-row"><td colspan="7">Laden...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="sub-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="sub-modal-title">Nieuw abonnement</h2>
+      <button class="modal-close" id="sub-modal-close">&times;</button>
+    </div>
+
+    <div class="form-error" id="sub-form-error"></div>
+
+    <form id="sub-form">
+      <input type="hidden" id="sub-id">
+      <div class="field">
+        <label for="sub_client">Klant *</label>
+        <select id="sub_client" required></select>
+      </div>
+      <div class="field">
+        <label for="sub_service">Dienst *</label>
+        <input type="text" id="sub_service" placeholder="Bijv. Maandelijkse Retainer" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="sub_price">Prijs per maand (&euro;) *</label>
+          <input type="number" id="sub_price" min="0" step="0.01" required>
+        </div>
+        <div class="field">
+          <label for="sub_status">Status *</label>
+          <select id="sub_status" required>
+            <option value="Actief">Actief</option>
+            <option value="Gepauzeerd">Gepauzeerd</option>
+            <option value="Opgezegd">Opgezegd</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="sub_start">Startdatum *</label>
+          <input type="date" id="sub_start" required>
+        </div>
+        <div class="field">
+          <label for="sub_next">Volgende factuurdatum *</label>
+          <input type="date" id="sub_next" required>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="sub-cancel-btn">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/subscriptions.js"></script>

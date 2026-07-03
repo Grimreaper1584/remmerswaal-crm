@@ -1,0 +1,128 @@
+<meta charset="UTF-8">
+<title>Financieel — Remmerswaal Security CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-mount"></aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Financieel Overzicht</h1>
+        <div class="subtitle">Omzet, MRR en eenmalige betalingen</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" id="add-payment-btn">+ Eenmalige betaling</button>
+      </div>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label">Totale MRR</div>
+        <div class="value cyan" id="stat-mrr">&mdash;</div>
+        <div class="delta">Maandelijks terugkerende omzet</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Eenmalige Betalingen</div>
+        <div class="value" id="stat-onetime">&mdash;</div>
+        <div class="delta">Deze maand</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Totaal Deze Maand</div>
+        <div class="value" id="stat-total-month">&mdash;</div>
+        <div class="delta">MRR + eenmalig</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Klant &rarr; Maandelijkse Waarde</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Klant</th><th>Dienst</th><th class="right">Per maand</th></tr></thead>
+            <tbody id="per-client-tbody"><tr class="empty-row"><td colspan="3">Laden...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Omzet per Type Dienst</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dienst</th><th class="right">Klanten</th><th class="right">Per maand</th></tr></thead>
+            <tbody id="service-type-tbody"><tr class="empty-row"><td colspan="3">Laden...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <span>Jaaroverzicht <span id="year-label"></span></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Maand</th><th class="right">Terugkerend</th><th class="right">Eenmalig</th><th class="right">Totaal</th><th></th></tr>
+          </thead>
+          <tbody id="year-tbody"><tr class="empty-row"><td colspan="5">Laden...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Eenmalige Betalingen (recent)</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Datum</th><th>Klant</th><th>Omschrijving</th><th class="right">Bedrag</th><th></th></tr></thead>
+          <tbody id="payments-tbody"><tr class="empty-row"><td colspan="5">Laden...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="payment-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Eenmalige betaling toevoegen</h2>
+      <button class="modal-close" id="payment-modal-close">&times;</button>
+    </div>
+
+    <div class="form-error" id="payment-form-error"></div>
+
+    <form id="payment-form">
+      <div class="field">
+        <label for="payment_client">Klant</label>
+        <select id="payment_client">
+          <option value="">Geen specifieke klant</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="payment_amount">Bedrag (&euro;) *</label>
+          <input type="number" id="payment_amount" min="0.01" step="0.01" required>
+        </div>
+        <div class="field">
+          <label for="payment_date">Datum *</label>
+          <input type="date" id="payment_date" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="payment_description">Omschrijving</label>
+        <input type="text" id="payment_description" placeholder="Bijv. eenmalige security audit">
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="payment-cancel-btn">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/financial.js"></script>

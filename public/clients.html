@@ -1,0 +1,143 @@
+<meta charset="UTF-8">
+<title>Klanten — Remmerswaal Security CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-mount"></aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Klanten</h1>
+        <div class="subtitle">Beheer alle klanten en prospects</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" id="add-client-btn">+ Nieuwe klant</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input type="search" id="search-input" placeholder="Zoek op naam, contact, e-mail of stad...">
+        <select id="filter-status">
+          <option value="">Alle statussen</option>
+          <option value="Actief">Actief</option>
+          <option value="Inactief">Inactief</option>
+          <option value="Prospect">Prospect</option>
+        </select>
+        <select id="filter-service">
+          <option value="">Alle diensten</option>
+          <option value="Externe Scan">Externe Scan</option>
+          <option value="Security Audit">Security Audit</option>
+          <option value="Retainer">Retainer</option>
+          <option value="KnowBe4">KnowBe4</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Bedrijf</th>
+              <th>Contactpersoon</th>
+              <th>E-mail</th>
+              <th>Stad</th>
+              <th>Status</th>
+              <th>Dienst</th>
+              <th class="right">Maandwaarde</th>
+              <th>Toegevoegd</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="clients-tbody">
+            <tr class="empty-row"><td colspan="9">Laden...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="client-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="client-modal-title">Nieuwe klant</h2>
+      <button class="modal-close" id="client-modal-close">&times;</button>
+    </div>
+
+    <div class="form-error" id="client-form-error"></div>
+
+    <form id="client-form">
+      <input type="hidden" id="client-id">
+      <div class="field">
+        <label for="company_name">Bedrijfsnaam *</label>
+        <input type="text" id="company_name" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="contact_person">Contactpersoon</label>
+          <input type="text" id="contact_person">
+        </div>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" id="email">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="phone">Telefoon</label>
+          <input type="text" id="phone">
+        </div>
+        <div class="field">
+          <label for="city">Stad</label>
+          <input type="text" id="city">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="status">Status *</label>
+          <select id="status" required>
+            <option value="Actief">Actief</option>
+            <option value="Inactief">Inactief</option>
+            <option value="Prospect">Prospect</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="service_type">Type dienst</label>
+          <select id="service_type">
+            <option value="">Geen</option>
+            <option value="Externe Scan">Externe Scan</option>
+            <option value="Security Audit">Security Audit</option>
+            <option value="Retainer">Retainer</option>
+            <option value="KnowBe4">KnowBe4</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="monthly_value">Maandwaarde (&euro;)</label>
+          <input type="number" id="monthly_value" min="0" step="0.01" value="0">
+        </div>
+        <div class="field">
+          <label for="date_added">Datum toegevoegd</label>
+          <input type="date" id="date_added">
+        </div>
+      </div>
+      <div class="field">
+        <label for="notes">Notities</label>
+        <textarea id="notes" placeholder="Interne notities over deze klant..."></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="client-cancel-btn">Annuleren</button>
+        <button type="submit" class="btn btn-primary" id="client-save-btn">Opslaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/clients.js"></script>

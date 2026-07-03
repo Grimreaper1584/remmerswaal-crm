@@ -1,0 +1,73 @@
+<meta charset="UTF-8">
+<title>Dashboard — Remmerswaal Security CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-mount"></aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <div class="subtitle">Overzicht van Remmerswaal Security</div>
+      </div>
+    </div>
+
+    <div class="stat-grid" id="stat-grid">
+      <div class="stat-card">
+        <div class="label">Maandelijks Terugkerende Omzet</div>
+        <div class="value cyan" id="stat-mrr">&mdash;</div>
+        <div class="delta">MRR van actieve klanten</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Actieve Klanten</div>
+        <div class="value" id="stat-clients">&mdash;</div>
+        <div class="delta">Status: Actief</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Actieve Abonnementen</div>
+        <div class="value" id="stat-subs">&mdash;</div>
+        <div class="delta">Retainer subscripties</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Omzet Deze Maand</div>
+        <div class="value" id="stat-month">&mdash;</div>
+        <div class="delta">Terugkerend + eenmalig</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Omzet Dit Jaar</div>
+        <div class="value" id="stat-year">&mdash;</div>
+        <div class="delta" id="stat-year-label">&nbsp;</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Recente Activiteit</div>
+        <ul class="activity-list" id="activity-list">
+          <li class="activity-item"><span class="dot"></span><div><div class="msg muted">Laden...</div></div></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Aankomende Afspraken</div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Datum</th><th>Klant</th><th>Type</th></tr>
+            </thead>
+            <tbody id="appt-tbody">
+              <tr class="empty-row"><td colspan="3">Laden...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/dashboard.js"></script>

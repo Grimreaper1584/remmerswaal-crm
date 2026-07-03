@@ -1,0 +1,90 @@
+<meta charset="UTF-8">
+<title>Instellingen — Remmerswaal Security CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-mount"></aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Instellingen</h1>
+        <div class="subtitle">Wachtwoord en gebruikersbeheer</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Wachtwoord Wijzigen</div>
+        <div class="form-error" id="pw-error"></div>
+        <div id="pw-success" class="alert-banner hidden" style="color: var(--green); background: rgba(46,230,166,0.08); border-color: rgba(46,230,166,0.25);">Wachtwoord succesvol gewijzigd.</div>
+        <form id="pw-form">
+          <div class="field">
+            <label for="current_password">Huidig wachtwoord</label>
+            <input type="password" id="current_password" required autocomplete="current-password">
+          </div>
+          <div class="field">
+            <label for="new_password">Nieuw wachtwoord</label>
+            <input type="password" id="new_password" required minlength="8" autocomplete="new-password">
+          </div>
+          <div class="field">
+            <label for="confirm_password">Bevestig nieuw wachtwoord</label>
+            <input type="password" id="confirm_password" required minlength="8" autocomplete="new-password">
+          </div>
+          <button type="submit" class="btn btn-primary">Wachtwoord bijwerken</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>Gebruikers</span>
+          <button class="btn btn-secondary btn-sm" id="add-user-btn">+ Gebruiker toevoegen</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Naam</th><th>Gebruikersnaam</th><th></th></tr></thead>
+            <tbody id="users-tbody"><tr class="empty-row"><td colspan="3">Laden...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="user-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="user-modal-title">Gebruiker toevoegen</h2>
+      <button class="modal-close" id="user-modal-close">&times;</button>
+    </div>
+
+    <div class="form-error" id="user-form-error"></div>
+
+    <form id="user-form">
+      <input type="hidden" id="user-id">
+      <div class="field">
+        <label for="user_name">Naam *</label>
+        <input type="text" id="user_name" required>
+      </div>
+      <div class="field" id="user_username_field">
+        <label for="user_username">Gebruikersnaam *</label>
+        <input type="text" id="user_username">
+      </div>
+      <div class="field">
+        <label for="user_password" id="user_password_label">Wachtwoord *</label>
+        <input type="password" id="user_password" minlength="8">
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="user-cancel-btn">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/settings.js"></script>

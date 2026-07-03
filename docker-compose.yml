@@ -1,0 +1,19 @@
+services:
+  crm:
+    build: .
+    container_name: remmerswaal-crm
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATA_DIR=/app/data
+      # Optional: pin a fixed JWT secret across container recreations.
+      # If unset, a random secret is generated on first run and persisted
+      # to the data volume (data/.jwt_secret).
+      # - JWT_SECRET=change-this-to-a-long-random-string
+    volumes:
+      - crm_data:/app/data
+
+volumes:
+  crm_data:
