@@ -8,6 +8,20 @@
   const form = document.getElementById('login-form');
   const errorBox = document.getElementById('login-error');
   const submitBtn = document.getElementById('login-submit');
+  const usernameField = document.getElementById('username');
+  const passwordField = document.getElementById('password');
+
+  function clearCredentialFields() {
+    usernameField.value = '';
+    passwordField.value = '';
+  }
+
+  clearCredentialFields();
+  // Browsers can autofill saved credentials asynchronously after load
+  // despite autocomplete="off", so clear again on the next tick and
+  // whenever the page is restored from bfcache.
+  setTimeout(clearCredentialFields, 0);
+  window.addEventListener('pageshow', clearCredentialFields);
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
