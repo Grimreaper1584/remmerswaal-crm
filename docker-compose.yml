@@ -1,3 +1,8 @@
+# Pinning the compose project name keeps the data volume's real name stable
+# (docker-compose namespaces volumes as "<project>_<volume>") even if this
+# repository ever gets checked out into a differently-named directory.
+name: remmerswaal-crm
+
 services:
   crm:
     build: .
@@ -16,4 +21,7 @@ services:
       - crm_data:/app/data
 
 volumes:
+  # Explicit fixed name so the volume is always addressed the same way
+  # (docker volume ls / inspect / backup scripts) regardless of project name.
   crm_data:
+    name: remmerswaal_crm_data

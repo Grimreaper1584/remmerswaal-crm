@@ -35,9 +35,26 @@ docker compose up -d --build
 
 De applicatie draait vervolgens op **http://<server-ip>:3000**.
 
-Data wordt persistent opgeslagen in het Docker volume `crm_data` (SQLite-bestand
-onder `/app/data/crm.sqlite` in de container), dus deze blijft behouden bij
-herstarten of updates van de container.
+Data wordt persistent opgeslagen in het Docker volume `remmerswaal_crm_data`
+(SQLite-bestand onder `/app/data/crm.sqlite` in de container), dus deze blijft
+behouden bij herstarten, `git pull` of het herbouwen van het image.
+
+De applicatie bevat **geen voorbeeld- of testdata**. Bij een volledig lege
+database wordt alleen eenmalig de standaard inlogaccounts (`robin`/`dani`)
+aangemaakt — er worden nooit automatisch klanten, afspraken of abonnementen
+toegevoegd.
+
+### Belangrijk bij herimplementeren/updaten
+
+- Gebruik `docker compose down` (**niet** `docker compose down -v`) gevolgd
+  door `docker compose up -d --build` om te updaten — de `-v` flag verwijdert
+  volumes en dus alle klantdata.
+- Verplaats of hernoem de projectmap op de VPS niet tussen deployments. De
+  `name: remmerswaal-crm` bovenaan `docker-compose.yml` zorgt er wel voor dat
+  het volume altijd dezelfde naam (`remmerswaal_crm_data`) krijgt, ongeacht de
+  mapnaam waarin het project staat, maar consistentie in het deployproces
+  blijft aan te raden.
+- Een back-up maken kan met: `docker run --rm -v remmerswaal_crm_data:/data -v $(pwd):/backup alpine tar czf /backup/crm-backup.tar.gz -C /data .`
 
 ### Standaard inloggegevens
 
@@ -103,7 +120,7 @@ degiro/
 ├── package.json
 ├── server/
 │   ├── index.js            # Express app entrypoint
-│   ├── db.js                # SQLite schema + seed data
+│   ├── db.js                # SQLite schema + eenmalige admin-account setup
 │   ├── middleware/
 │   │   └── auth.js          # JWT verificatie
 │   ├── routes/
