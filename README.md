@@ -81,11 +81,15 @@ De app luistert standaard op poort 3000. Zet eventueel een `.env` bestand met:
 PORT=3000
 JWT_SECRET=een-lange-willekeurige-string
 DATA_DIR=./data
+INTERNAL_API_KEY=een-lange-willekeurige-string-voor-interne-api-toegang
 ```
 
 Als `JWT_SECRET` niet is ingesteld, genereert de server automatisch een
 willekeurig secret en slaat dit op in `data/.jwt_secret` zodat sessies geldig
-blijven bij herstart.
+blijven bij herstart. `INTERNAL_API_KEY` wordt **niet** automatisch
+gegenereerd: zonder deze variabele staat de interne API (`/api/internal/*`,
+zie [`docs/gvm-integration.md`](docs/gvm-integration.md)) op slot (HTTP 500
+op elk verzoek), in plaats van open te staan.
 
 ## HTTPS / reverse proxy
 
@@ -118,11 +122,19 @@ degiro/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── package.json
+├── docs/
+│   └── gvm-integration.md   # CRM ↔ Greenbone/GVM koppeling + consent-gating
+├── orchestrator/            # los Python-proces, spreekt GMP met gvmd (zie docs/gvm-integration.md)
+│   ├── gvm_orchestrator.py
+│   ├── requirements.txt
+│   └── tests/
 ├── server/
-│   ├── index.js            # Express app entrypoint
+│   ├── index.js            # process bootstrap (dotenv, JWT_SECRET) + luistert op PORT
+│   ├── app.js                # Express app wiring (los van index.js, voor tests)
 │   ├── db.js                # SQLite schema + eenmalige admin-account setup
 │   ├── middleware/
-│   │   └── auth.js          # JWT verificatie
+│   │   ├── auth.js          # JWT verificatie (dashboard)
+│   │   └── apiKey.js        # API-key verificatie (interne/machine routes)
 │   ├── routes/
 │   │   ├── auth.js
 │   │   ├── clients.js
@@ -130,11 +142,14 @@ degiro/
 │   │   ├── appointments.js
 │   │   ├── dashboard.js
 │   │   ├── financial.js
-│   │   └── users.js
-│   └── utils/
-│       ├── activity.js      # activiteitenlog
-│       ├── finance.js       # omzetberekeningen (MRR, jaaroverzicht)
-│       └── validate.js      # inputvalidatie
+│   │   ├── users.js
+│   │   └── internal.js      # klanten/consent/scans, API-key beveiligd
+│   ├── utils/
+│   │   ├── activity.js      # activiteitenlog
+│   │   ├── finance.js       # omzetberekeningen (MRR, jaaroverzicht)
+│   │   ├── validate.js      # inputvalidatie
+│   │   └── scope.js         # consent-scope matching (IP/CIDR/domein)
+│   └── __tests__/
 └── public/
     ├── index.html            # login
     ├── dashboard.html
@@ -150,7 +165,10 @@ degiro/
 ## Beveiliging
 
 - Wachtwoorden worden gehasht met bcrypt (nooit in platte tekst opgeslagen)
-- Alle API-routes (behalve `/api/auth/login`) vereisen een geldig JWT-token
+- Alle dashboard API-routes (behalve `/api/auth/login`) vereisen een geldig JWT-token
+- De interne machine-naar-machine API (`/api/internal/*`) vereist een aparte
+  API-key (`INTERNAL_API_KEY`, zie [`docs/gvm-integration.md`](docs/gvm-integration.md))
+  en staat standaard op slot als deze niet is ingesteld
 - Serverzijdige inputvalidatie op alle create/update endpoints
 - Aanbevolen: draai achter een reverse proxy met HTTPS (zie boven)
 - Wijzig de standaard wachtwoorden direct na installatie
@@ -163,3 +181,15 @@ degiro/
 - `appointments` — geplande afspraken gekoppeld aan een klant
 - `payments` — eenmalige betalingen
 - `activity_log` — activiteitenfeed voor het dashboard
+- `client_consents` — vastgelegde toestemming om te scannen (zie hieronder)
+- `scans` — GVM-scans, verplicht gekoppeld aan een consent-record
+
+## GVM/Greenbone-integratie (vulnerability scans)
+
+Een aparte, API-key-beveiligde interne API (`/api/internal/*`) en een los
+Python-orchestratorproces (`orchestrator/`) koppelen dit CRM aan een
+Greenbone/GVM-instantie om scans aan te vragen — met een harde,
+niet-omzeilbare consent-check voordat een scan ooit wordt aangemaakt. Zie
+[`docs/gvm-integration.md`](docs/gvm-integration.md) voor de volledige
+documentatie: architectuurkeuze, env vars, endpoint-referentie met
+curl-voorbeelden, en de aannames die hierbij zijn gemaakt.

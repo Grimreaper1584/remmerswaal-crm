@@ -17,6 +17,10 @@ services:
       # If unset, a random secret is generated on first run and persisted
       # to the data volume (data/.jwt_secret).
       # - JWT_SECRET=change-this-to-a-long-random-string
+      # Required to enable the internal API (/api/internal/*, used by the
+      # GVM orchestrator). Without it, those routes return 500 rather than
+      # being open. See docs/gvm-integration.md.
+      # - INTERNAL_API_KEY=change-this-to-a-long-random-string
     volumes:
       - crm_data:/app/data
 

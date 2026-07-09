@@ -7,3 +7,8 @@ data/
 .env
 npm-debug.log*
 .DS_Store
+
+# Python orchestrator (orchestrator/)
+__pycache__/
+*.pyc
+.venv/

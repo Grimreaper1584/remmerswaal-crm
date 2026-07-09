@@ -73,6 +73,45 @@ CREATE TABLE IF NOT EXISTS activity_log (
   message TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- Consent records: the legal basis (art. 138ab Sr) for ever scanning a
+-- client's infrastructure. scope holds the authorized IPs/domains as a
+-- free-text list (comma/newline separated, CIDR and wildcard supported —
+-- see server/utils/scope.js). revoked_at is set (never deleted) to keep an
+-- audit trail of withdrawn consent.
+CREATE TABLE IF NOT EXISTS client_consents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  scope TEXT NOT NULL,
+  authorized_by TEXT NOT NULL,
+  authorized_at TEXT NOT NULL DEFAULT (datetime('now')),
+  document_reference TEXT,
+  revoked_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_client_consents_client_id ON client_consents(client_id);
+
+-- consent_id is intentionally NOT NULL with no default: this is the
+-- data-layer half of the consent gate. There is no code path (and no raw
+-- SQL insert) that can create a scan row without pointing at an existing
+-- consent record.
+CREATE TABLE IF NOT EXISTS scans (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  consent_id INTEGER NOT NULL REFERENCES client_consents(id),
+  target_value TEXT NOT NULL,
+  scan_config TEXT NOT NULL DEFAULT 'Discovery',
+  gvm_task_id TEXT,
+  gvm_target_id TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  error_message TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  completed_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_scans_client_id ON scans(client_id);
+CREATE INDEX IF NOT EXISTS idx_scans_status ON scans(status);
 `);
 
 // --- Seed default login accounts (robin & dani) ---
