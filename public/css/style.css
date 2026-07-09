@@ -529,6 +529,43 @@ textarea { resize: vertical; min-height: 70px; }
   margin-top: 18px;
 }
 
+/* ---------- Consent-PDF section (in client modal) ---------- */
+
+.consent-pdf-section { display: none; }
+.consent-pdf-section.show { display: block; }
+
+.consent-pdf-divider {
+  border-top: 1px solid var(--border);
+  margin: 20px 0 16px;
+}
+
+.consent-pdf-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  margin: 0 0 14px;
+}
+
+.consent-pdf-actions { margin-bottom: 14px; }
+
+.consent-pdf-list { list-style: none; margin: 0; padding: 0; }
+
+.consent-pdf-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12.5px;
+}
+.consent-pdf-list li:last-child { border-bottom: none; }
+
+.consent-pdf-list .filename { color: var(--text); word-break: break-all; }
+.consent-pdf-list .meta { color: var(--text-faint); font-size: 10.5px; white-space: nowrap; }
+.consent-pdf-list .empty { color: var(--text-faint); padding: 4px 0; }
+
 /* ---------- Login page ---------- */
 
 .login-screen {

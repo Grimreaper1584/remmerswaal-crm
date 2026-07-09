@@ -15,6 +15,12 @@
   const formError = document.getElementById('client-form-error');
   const modalTitle = document.getElementById('client-modal-title');
 
+  const consentSection = document.getElementById('consent-pdf-section');
+  const consentServiceWarning = document.getElementById('consent-service-warning');
+  const consentScopeInput = document.getElementById('consent-scope');
+  const consentGenerateBtn = document.getElementById('consent-generate-btn');
+  const consentPdfList = document.getElementById('consent-pdf-list');
+
   function openModal(client) {
     form.reset();
     formError.classList.remove('show');
@@ -31,14 +37,125 @@
       document.getElementById('monthly_value').value = client.monthly_value || 0;
       document.getElementById('date_added').value = (client.date_added || '').slice(0, 10);
       document.getElementById('notes').value = client.notes || '';
+
+      consentScopeInput.value = '';
+      if (client.service_type) {
+        consentServiceWarning.classList.remove('show');
+      } else {
+        consentServiceWarning.textContent = 'Geen dienst geselecteerd bij deze klant — het document gebruikt de generieke Externe-Scan-tekst als veilige default.';
+        consentServiceWarning.classList.add('show');
+      }
+      consentSection.classList.add('show');
+      loadConsentPdfs(client.id);
     } else {
       modalTitle.textContent = 'Nieuwe klant';
       document.getElementById('client-id').value = '';
       document.getElementById('date_added').value = Utils.todayIso();
       document.getElementById('status').value = 'Prospect';
+      consentSection.classList.remove('show');
     }
     overlay.classList.add('open');
   }
+
+  // Consent-PDF endpoints return a binary PDF (not JSON), so they're fetched
+  // directly here instead of via API.* — this shared handler triggers a
+  // browser download from the resulting blob for both generating a new PDF
+  // (POST) and re-downloading a previously generated one (GET).
+  async function fetchAndDownloadPdf(url, { method = 'GET', body, fallbackFilename } = {}) {
+    const token = localStorage.getItem('rs_token');
+    const headers = { Authorization: `Bearer ${token}` };
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
+
+    let res;
+    try {
+      res = await fetch(url, { method, headers, body: body !== undefined ? JSON.stringify(body) : undefined });
+    } catch (err) {
+      throw new Error('Kan geen verbinding maken met de server.');
+    }
+    if (!res.ok) {
+      let message = 'Er is een fout opgetreden.';
+      try {
+        const data = await res.json();
+        if (data && data.error) message = data.error;
+      } catch (e) { /* not JSON */ }
+      throw new Error(message);
+    }
+    const disposition = res.headers.get('content-disposition') || '';
+    const match = disposition.match(/filename="?([^"]+)"?/);
+    const filename = (match && match[1]) || fallbackFilename;
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(blobUrl);
+  }
+
+  function renderConsentPdfList(documents) {
+    if (!documents.length) {
+      consentPdfList.innerHTML = '<li class="empty">Nog geen documenten gegenereerd voor deze klant.</li>';
+      return;
+    }
+    consentPdfList.innerHTML = documents.map((d) => `
+      <li>
+        <span class="filename">${Utils.escapeHtml(d.filename)}</span>
+        <span class="meta">${Utils.formatDateTime(d.created_at)}</span>
+        <button type="button" class="btn btn-secondary btn-sm" data-filename="${Utils.escapeHtml(d.filename)}">Download</button>
+      </li>
+    `).join('');
+  }
+
+  async function loadConsentPdfs(clientId) {
+    consentPdfList.innerHTML = '<li class="empty">Laden...</li>';
+    try {
+      const documents = await API.get(`/clients/${clientId}/consent-pdfs`);
+      renderConsentPdfList(documents);
+    } catch (err) {
+      consentPdfList.innerHTML = `<li class="empty">${Utils.escapeHtml(err.message)}</li>`;
+    }
+  }
+
+  consentPdfList.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-filename]');
+    if (!btn) return;
+    const clientId = document.getElementById('client-id').value;
+    btn.disabled = true;
+    try {
+      await fetchAndDownloadPdf(`/api/clients/${clientId}/consent-pdfs/${encodeURIComponent(btn.dataset.filename)}`, {
+        fallbackFilename: btn.dataset.filename,
+      });
+    } catch (err) {
+      Utils.toast(err.message, 'error');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  consentGenerateBtn.addEventListener('click', async () => {
+    const clientId = document.getElementById('client-id').value;
+    const scope = consentScopeInput.value.trim();
+    if (!scope) {
+      Utils.toast('Vul eerst de scope (IP\'s/domeinen) in.', 'error');
+      return;
+    }
+    consentGenerateBtn.disabled = true;
+    try {
+      await fetchAndDownloadPdf(`/api/clients/${clientId}/consent-pdf`, {
+        method: 'POST',
+        body: { scope },
+        fallbackFilename: `consent-${clientId}.pdf`,
+      });
+      Utils.toast('Toestemmingsdocument gegenereerd.', 'success');
+      loadConsentPdfs(clientId);
+    } catch (err) {
+      Utils.toast(err.message, 'error');
+    } finally {
+      consentGenerateBtn.disabled = false;
+    }
+  });
 
   function closeModal() {
     overlay.classList.remove('open');
