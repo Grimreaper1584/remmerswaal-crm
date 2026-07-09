@@ -56,12 +56,6 @@ toegevoegd.
   blijft aan te raden.
 - Een back-up maken kan met: `docker run --rm -v remmerswaal_crm_data:/data -v $(pwd):/backup alpine tar czf /backup/crm-backup.tar.gz -C /data .`
 
-### Standaard inloggegevens
-
-| Gebruikersnaam | Wachtwoord          |
-|-----------------|----------------------|
-| `robin`         | `Remmerswaal2026!`  |
-| `dani`          | `Remmerswaal2026!`  |
 
 **Wijzig deze wachtwoorden direct na de eerste keer inloggen** via de
 Instellingen-pagina.
