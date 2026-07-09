@@ -112,6 +112,25 @@ CREATE TABLE IF NOT EXISTS scans (
 
 CREATE INDEX IF NOT EXISTS idx_scans_client_id ON scans(client_id);
 CREATE INDEX IF NOT EXISTS idx_scans_status ON scans(status);
+
+-- Log of generated consent-PDF documents (dashboard feature, see
+-- docs/consent-pdf.md). Deliberately separate from client_consents (the
+-- GVM-integration scan-gating table): that table's authorized_by is
+-- NOT NULL and its rows are treated as real, active authorization to scan.
+-- A freshly generated, not-yet-signed PDF is neither of those things, so it
+-- is tracked here instead of inserting a placeholder row into the gating
+-- table.
+CREATE TABLE IF NOT EXISTS consent_documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id INTEGER NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  document_reference TEXT NOT NULL,
+  service_type TEXT,
+  scope TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_consent_documents_client_id ON consent_documents(client_id);
 `);
 
 // --- Seed default login accounts (robin & dani) ---
@@ -128,3 +147,4 @@ if (userCount === 0) {
 }
 
 module.exports = db;
+module.exports.DATA_DIR = DATA_DIR;

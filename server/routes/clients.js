@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const db = require('../db');
 const { requireAuth } = require('../middleware/auth');
@@ -10,6 +11,7 @@ const {
   isValidDate,
   isValidNumber,
 } = require('../utils/validate');
+const { CONSENTS_DIR, ConsentPdfError, generateConsentPdf } = require('../utils/consentPdf');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -146,6 +148,78 @@ router.delete('/:id', (req, res) => {
   db.prepare('DELETE FROM clients WHERE id = ?').run(req.params.id);
   addActivity(`Klant verwijderd: ${existing.company_name}`);
   res.json({ success: true });
+});
+
+// --- Consent-PDF (toestemmingsverklaring) ----------------------------------
+// Dashboard-only, JWT-beveiligd (via router.use(requireAuth) hierboven) —
+// niet te verwarren met de API-key-beveiligde /api/internal/* consent-flow
+// uit de GVM-integratie (zie docs/gvm-integration.md). Zie docs/consent-pdf.md.
+router.post('/:id/consent-pdf', async (req, res) => {
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Klant niet gevonden.' });
+
+  const body = req.body || {};
+  if (!isNonEmptyString(body.scope)) {
+    return res.status(400).json({ error: 'Scope (IP\'s/domeinen) is verplicht.' });
+  }
+  const scope = body.scope.trim();
+
+  let result;
+  try {
+    result = await generateConsentPdf({ client, scope, generatedByName: req.user.name });
+  } catch (err) {
+    if (err instanceof ConsentPdfError && err.code === 'SERVICE_TYPE_NOT_APPLICABLE') {
+      return res.status(400).json({ error: err.message });
+    }
+    console.error(err);
+    return res.status(500).json({ error: 'Genereren van het PDF is mislukt.' });
+  }
+
+  db.prepare(`
+    INSERT INTO consent_documents (client_id, filename, document_reference, service_type, scope)
+    VALUES (?, ?, ?, ?, ?)
+  `).run(client.id, result.filename, result.documentReference, client.service_type || null, scope);
+
+  addActivity(`Toestemmingsdocument gegenereerd voor ${client.company_name} (${result.documentReference})`);
+
+  res.set('Content-Type', 'application/pdf');
+  res.set('Content-Disposition', `attachment; filename="${result.filename}"`);
+  res.send(result.buffer);
+});
+
+router.get('/:id/consent-pdfs', (req, res) => {
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Klant niet gevonden.' });
+
+  const documents = db.prepare(`
+    SELECT id, filename, document_reference, service_type, scope, created_at
+    FROM consent_documents
+    WHERE client_id = ?
+    ORDER BY created_at DESC
+  `).all(client.id);
+
+  res.json(documents);
+});
+
+// Serves a previously generated PDF for download. filename is looked up in
+// consent_documents (scoped to this client) rather than trusted directly
+// from the URL, so a request can't be pointed at an arbitrary path or at
+// another client's document.
+router.get('/:id/consent-pdfs/:filename', (req, res) => {
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.id);
+  if (!client) return res.status(404).json({ error: 'Klant niet gevonden.' });
+
+  const document = db.prepare(`
+    SELECT filename FROM consent_documents WHERE client_id = ? AND filename = ?
+  `).get(client.id, req.params.filename);
+  if (!document) return res.status(404).json({ error: 'Document niet gevonden.' });
+
+  const filePath = path.join(CONSENTS_DIR, path.basename(document.filename));
+  res.download(filePath, document.filename, (err) => {
+    if (err && !res.headersSent) {
+      res.status(404).json({ error: 'Bestand niet (meer) aanwezig op de server.' });
+    }
+  });
 });
 
 module.exports = router;

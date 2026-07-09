@@ -20,6 +20,10 @@ abonnementen en afspraken vanuit één beveiligd systeem.
 5. **Abonnementen** — actieve retainers met verlengingsalerts (binnen 14 dagen)
 6. **Afspraken & notities** — planning per klant met type (Intake/Scan/Nabespreking/Factuur)
 7. **Instellingen** — wachtwoord wijzigen, gebruikers beheren
+8. **Toestemmingsdocument (PDF)** — genereer vanuit een klantrecord een
+   ondertekenbare PDF met de scan-toestemmingsvoorwaarden, met
+   dienst-specifieke tekst op basis van het type dienst van de klant. Zie
+   [`docs/consent-pdf.md`](docs/consent-pdf.md).
 
 Alle teksten zijn in het Nederlands, datums in `DD-MM-YYYY` en bedragen in euro's.
 
@@ -117,7 +121,8 @@ degiro/
 ├── docker-compose.yml
 ├── package.json
 ├── docs/
-│   └── gvm-integration.md   # CRM ↔ Greenbone/GVM koppeling + consent-gating
+│   ├── gvm-integration.md   # CRM ↔ Greenbone/GVM koppeling + consent-gating
+│   └── consent-pdf.md       # toestemmings-PDF-generator (dashboard-functie)
 ├── orchestrator/            # los Python-proces, spreekt GMP met gvmd (zie docs/gvm-integration.md)
 │   ├── gvm_orchestrator.py
 │   ├── requirements.txt
@@ -142,7 +147,8 @@ degiro/
 │   │   ├── activity.js      # activiteitenlog
 │   │   ├── finance.js       # omzetberekeningen (MRR, jaaroverzicht)
 │   │   ├── validate.js      # inputvalidatie
-│   │   └── scope.js         # consent-scope matching (IP/CIDR/domein)
+│   │   ├── scope.js         # consent-scope matching (IP/CIDR/domein)
+│   │   └── consentPdf.js    # toestemmings-PDF-generator (pdfkit)
 │   └── __tests__/
 └── public/
     ├── index.html            # login
@@ -177,6 +183,8 @@ degiro/
 - `activity_log` — activiteitenfeed voor het dashboard
 - `client_consents` — vastgelegde toestemming om te scannen (zie hieronder)
 - `scans` — GVM-scans, verplicht gekoppeld aan een consent-record
+- `consent_documents` — log van gegenereerde toestemmings-PDF's per klant
+  (zie [`docs/consent-pdf.md`](docs/consent-pdf.md))
 
 ## GVM/Greenbone-integratie (vulnerability scans)
 
@@ -187,3 +195,15 @@ niet-omzeilbare consent-check voordat een scan ooit wordt aangemaakt. Zie
 [`docs/gvm-integration.md`](docs/gvm-integration.md) voor de volledige
 documentatie: architectuurkeuze, env vars, endpoint-referentie met
 curl-voorbeelden, en de aannames die hierbij zijn gemaakt.
+
+## Toestemmingsdocument (consent-PDF)
+
+Een aparte, JWT-beveiligde dashboard-functie (**geen** onderdeel van de
+`/api/internal/*` GVM-integratie hierboven) waarmee je vanuit een
+klantrecord met één klik een PDF genereert met de
+scan-toestemmingsvoorwaarden, met tekst die automatisch wordt gekozen op
+basis van het type dienst van de klant. Zie
+[`docs/consent-pdf.md`](docs/consent-pdf.md) voor de volledige
+documentatie: welke library, waar PDF's worden opgeslagen (en hoe dat
+automatisch in de bestaande backup-strategie meeloopt), de
+endpoint-referentie en de gemaakte aannames.

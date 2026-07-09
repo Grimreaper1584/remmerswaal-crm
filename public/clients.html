@@ -134,6 +134,20 @@
         <button type="submit" class="btn btn-primary" id="client-save-btn">Opslaan</button>
       </div>
     </form>
+
+    <div class="consent-pdf-section" id="consent-pdf-section">
+      <div class="consent-pdf-divider"></div>
+      <h3 class="consent-pdf-title">Toestemmingsdocument (PDF)</h3>
+      <div class="form-error" id="consent-service-warning"></div>
+      <div class="field">
+        <label for="consent-scope">Scope (welke IP's/domeinen)</label>
+        <textarea id="consent-scope" placeholder="Bijv. 10.0.0.0/24, voorbeeld.nl"></textarea>
+      </div>
+      <div class="consent-pdf-actions">
+        <button type="button" class="btn btn-secondary" id="consent-generate-btn">Genereer toestemmingsdocument (PDF)</button>
+      </div>
+      <ul class="consent-pdf-list" id="consent-pdf-list"></ul>
+    </div>
   </div>
 </div>
 
