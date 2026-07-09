@@ -1,0 +1,32 @@
+<meta charset="UTF-8">
+<title>Inloggen — Remmerswaal Security CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<div class="login-screen">
+  <div class="login-box">
+    <div class="login-brand">
+      <div class="logo-mark">// REMMERSWAAL SECURITY</div>
+      <div class="logo-name">CRM Systeem</div>
+      <div class="logo-sub">Beveiligde toegang</div>
+    </div>
+
+    <div class="form-error" id="login-error"></div>
+
+    <form id="login-form" autocomplete="off">
+      <div class="field">
+        <label for="username">Gebruikersnaam</label>
+        <input type="text" id="username" name="username" autocomplete="new-password" required autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Wachtwoord</label>
+        <input type="password" id="password" name="password" autocomplete="new-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required>
+      </div>
+      <button type="submit" class="btn btn-primary" id="login-submit">Inloggen</button>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/login.js"></script>

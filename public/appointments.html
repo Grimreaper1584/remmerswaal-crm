@@ -1,0 +1,98 @@
+<meta charset="UTF-8">
+<title>Afspraken — Remmerswaal Security CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-mount"></aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>Afspraken &amp; Notities</h1>
+        <div class="subtitle">Overzicht van geplande afspraken</div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary" id="add-appt-btn">+ Nieuwe afspraak</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <select id="filter-type">
+          <option value="">Alle types</option>
+          <option value="Intake">Intake</option>
+          <option value="Scan">Scan</option>
+          <option value="Nabespreking">Nabespreking</option>
+          <option value="Factuur">Factuur</option>
+        </select>
+        <select id="filter-time">
+          <option value="upcoming">Aankomend</option>
+          <option value="all">Alles</option>
+          <option value="past">Verleden</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Datum</th><th>Klant</th><th>Type</th><th>Notities</th><th></th></tr>
+          </thead>
+          <tbody id="appt-tbody">
+            <tr class="empty-row"><td colspan="5">Laden...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="appt-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="appt-modal-title">Nieuwe afspraak</h2>
+      <button class="modal-close" id="appt-modal-close">&times;</button>
+    </div>
+
+    <div class="form-error" id="appt-form-error"></div>
+
+    <form id="appt-form">
+      <input type="hidden" id="appt-id">
+      <div class="field">
+        <label for="appt_client">Klant</label>
+        <select id="appt_client">
+          <option value="">Geen specifieke klant</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="appt_date">Datum *</label>
+          <input type="date" id="appt_date" required>
+        </div>
+        <div class="field">
+          <label for="appt_type">Type *</label>
+          <select id="appt_type" required>
+            <option value="Intake">Intake</option>
+            <option value="Scan">Scan</option>
+            <option value="Nabespreking">Nabespreking</option>
+            <option value="Factuur">Factuur</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="appt_notes">Notities</label>
+        <textarea id="appt_notes" placeholder="Details over deze afspraak..."></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="appt-cancel-btn">Annuleren</button>
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/appointments.js"></script>
