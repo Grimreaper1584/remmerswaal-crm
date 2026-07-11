@@ -16,10 +16,6 @@ if (!process.env.JWT_SECRET) {
   }
 }
 
-if (!process.env.INTERNAL_API_KEY) {
-  console.warn('INTERNAL_API_KEY is niet ingesteld — de interne API (/api/internal/*) staat op slot totdat dit gezet wordt.');
-}
-
 const app = require('./app');
 const PORT = process.env.PORT || 3000;
 

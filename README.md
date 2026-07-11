@@ -79,15 +79,11 @@ De app luistert standaard op poort 3000. Zet eventueel een `.env` bestand met:
 PORT=3000
 JWT_SECRET=een-lange-willekeurige-string
 DATA_DIR=./data
-INTERNAL_API_KEY=een-lange-willekeurige-string-voor-interne-api-toegang
 ```
 
 Als `JWT_SECRET` niet is ingesteld, genereert de server automatisch een
 willekeurig secret en slaat dit op in `data/.jwt_secret` zodat sessies geldig
-blijven bij herstart. `INTERNAL_API_KEY` wordt **niet** automatisch
-gegenereerd: zonder deze variabele staat de interne API (`/api/internal/*`,
-zie [`docs/gvm-integration.md`](docs/gvm-integration.md)) op slot (HTTP 500
-op elk verzoek), in plaats van open te staan.
+blijven bij herstart.
 
 ## HTTPS / reverse proxy
 
@@ -121,19 +117,13 @@ degiro/
 ├── docker-compose.yml
 ├── package.json
 ├── docs/
-│   ├── gvm-integration.md   # CRM ↔ Greenbone/GVM koppeling + consent-gating
 │   └── consent-pdf.md       # toestemmings-PDF-generator (dashboard-functie)
-├── orchestrator/            # los Python-proces, spreekt GMP met gvmd (zie docs/gvm-integration.md)
-│   ├── gvm_orchestrator.py
-│   ├── requirements.txt
-│   └── tests/
 ├── server/
 │   ├── index.js            # process bootstrap (dotenv, JWT_SECRET) + luistert op PORT
 │   ├── app.js                # Express app wiring (los van index.js, voor tests)
 │   ├── db.js                # SQLite schema + eenmalige admin-account setup
 │   ├── middleware/
-│   │   ├── auth.js          # JWT verificatie (dashboard)
-│   │   └── apiKey.js        # API-key verificatie (interne/machine routes)
+│   │   └── auth.js          # JWT verificatie (dashboard)
 │   ├── routes/
 │   │   ├── auth.js
 │   │   ├── clients.js
@@ -141,13 +131,11 @@ degiro/
 │   │   ├── appointments.js
 │   │   ├── dashboard.js
 │   │   ├── financial.js
-│   │   ├── users.js
-│   │   └── internal.js      # klanten/consent/scans, API-key beveiligd
+│   │   └── users.js
 │   ├── utils/
 │   │   ├── activity.js      # activiteitenlog
 │   │   ├── finance.js       # omzetberekeningen (MRR, jaaroverzicht)
 │   │   ├── validate.js      # inputvalidatie
-│   │   ├── scope.js         # consent-scope matching (IP/CIDR/domein)
 │   │   └── consentPdf.js    # toestemmings-PDF-generator (pdfkit)
 │   └── __tests__/
 └── public/
@@ -165,10 +153,7 @@ degiro/
 ## Beveiliging
 
 - Wachtwoorden worden gehasht met bcrypt (nooit in platte tekst opgeslagen)
-- Alle dashboard API-routes (behalve `/api/auth/login`) vereisen een geldig JWT-token
-- De interne machine-naar-machine API (`/api/internal/*`) vereist een aparte
-  API-key (`INTERNAL_API_KEY`, zie [`docs/gvm-integration.md`](docs/gvm-integration.md))
-  en staat standaard op slot als deze niet is ingesteld
+- Alle API-routes (behalve `/api/auth/login`) vereisen een geldig JWT-token
 - Serverzijdige inputvalidatie op alle create/update endpoints
 - Aanbevolen: draai achter een reverse proxy met HTTPS (zie boven)
 - Wijzig de standaard wachtwoorden direct na installatie
@@ -181,28 +166,14 @@ degiro/
 - `appointments` — geplande afspraken gekoppeld aan een klant
 - `payments` — eenmalige betalingen
 - `activity_log` — activiteitenfeed voor het dashboard
-- `client_consents` — vastgelegde toestemming om te scannen (zie hieronder)
-- `scans` — GVM-scans, verplicht gekoppeld aan een consent-record
 - `consent_documents` — log van gegenereerde toestemmings-PDF's per klant
   (zie [`docs/consent-pdf.md`](docs/consent-pdf.md))
 
-## GVM/Greenbone-integratie (vulnerability scans)
-
-Een aparte, API-key-beveiligde interne API (`/api/internal/*`) en een los
-Python-orchestratorproces (`orchestrator/`) koppelen dit CRM aan een
-Greenbone/GVM-instantie om scans aan te vragen — met een harde,
-niet-omzeilbare consent-check voordat een scan ooit wordt aangemaakt. Zie
-[`docs/gvm-integration.md`](docs/gvm-integration.md) voor de volledige
-documentatie: architectuurkeuze, env vars, endpoint-referentie met
-curl-voorbeelden, en de aannames die hierbij zijn gemaakt.
-
 ## Toestemmingsdocument (consent-PDF)
 
-Een aparte, JWT-beveiligde dashboard-functie (**geen** onderdeel van de
-`/api/internal/*` GVM-integratie hierboven) waarmee je vanuit een
-klantrecord met één klik een PDF genereert met de
-scan-toestemmingsvoorwaarden, met tekst die automatisch wordt gekozen op
-basis van het type dienst van de klant. Zie
+Een JWT-beveiligde dashboard-functie waarmee je vanuit een klantrecord met
+één klik een PDF genereert met de scan-toestemmingsvoorwaarden, met tekst
+die automatisch wordt gekozen op basis van het type dienst van de klant. Zie
 [`docs/consent-pdf.md`](docs/consent-pdf.md) voor de volledige
 documentatie: welke library, waar PDF's worden opgeslagen (en hoe dat
 automatisch in de bestaande backup-strategie meeloopt), de

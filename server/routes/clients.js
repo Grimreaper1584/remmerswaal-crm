@@ -151,9 +151,8 @@ router.delete('/:id', (req, res) => {
 });
 
 // --- Consent-PDF (toestemmingsverklaring) ----------------------------------
-// Dashboard-only, JWT-beveiligd (via router.use(requireAuth) hierboven) —
-// niet te verwarren met de API-key-beveiligde /api/internal/* consent-flow
-// uit de GVM-integratie (zie docs/gvm-integration.md). Zie docs/consent-pdf.md.
+// Dashboard-only, JWT-beveiligd (via router.use(requireAuth) hierboven).
+// Zie docs/consent-pdf.md.
 router.post('/:id/consent-pdf', async (req, res) => {
   const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.id);
   if (!client) return res.status(404).json({ error: 'Klant niet gevonden.' });
