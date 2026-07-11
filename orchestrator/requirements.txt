@@ -1,2 +1,0 @@
-python-gvm>=25.1.0,<28
-requests>=2.31.0,<3

@@ -12,7 +12,6 @@ const appointmentRoutes = require('./routes/appointments');
 const dashboardRoutes = require('./routes/dashboard');
 const financialRoutes = require('./routes/financial');
 const userRoutes = require('./routes/users');
-const internalRoutes = require('./routes/internal');
 
 const app = express();
 
@@ -26,7 +25,6 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/financial', financialRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/internal', internalRoutes);
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
 

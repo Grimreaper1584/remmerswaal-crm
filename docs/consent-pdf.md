@@ -3,10 +3,7 @@
 Dashboard-functie waarmee je vanuit een klantrecord met één klik een PDF
 genereert met de scan-toestemmingsvoorwaarden, om te printen/mailen voor
 ondertekening door de klant. JWT-beveiligd, onderdeel van de gewone
-ingelogde CRM-interface (`server/routes/clients.js`) — **niet** onderdeel
-van de API-key-beveiligde `/api/internal/*` GVM-integratie uit
-[`docs/gvm-integration.md`](gvm-integration.md). Die twee staan volledig
-los van elkaar.
+ingelogde CRM-interface (`server/routes/clients.js`).
 
 ## Inhoud
 
@@ -22,9 +19,7 @@ los van elkaar.
 [`pdfkit`](https://pdfkit.org/) — pure JavaScript, geen headless
 Chrome/Puppeteer nodig. Er stond nog geen PDF-library in de repo. Voor een
 simpel, tekstgedreven zakelijk document is een lichte library ruim
-voldoende, en dat scheelt geheugengebruik op een 4GB VPS die naast de CRM
-ook al de Greenbone/GVM-stack draait (zie architectuurkeuze in
-`docs/gvm-integration.md` voor dezelfde afweging bij de orchestrator).
+voldoende, en dat scheelt geheugengebruik op een resource-beperkte VPS.
 
 ## Opslag
 
@@ -125,9 +120,6 @@ consent_documents
   id, client_id, filename, document_reference, service_type, scope, created_at
 ```
 
-Zie [Aannames](#aannames) hieronder voor waarom dit een eigen tabel is en
-niet de bestaande `client_consents` uit de GVM-integratie.
-
 ## Aannames
 
 Expliciet voor review:
@@ -139,27 +131,12 @@ Expliciet voor review:
    plaats]`-regel onder de bedrijfsnaam. Vul dit in
    `COMPANY_ADDRESS_LINES` in `server/utils/consentPdf.js` in zodra het
    echte adres bekend is.
-2. **Eigen `consent_documents`-tabel in plaats van `client_consents`**:
-   de bestaande `client_consents`-tabel (GVM-integratie) heeft
-   `authorized_by TEXT NOT NULL` en de rijen daarin worden door de
-   scan-gating-logica (`/api/internal/clients/:id/scans`) behandeld als
-   **actieve, geldige autorisatie om te scannen** — elke niet-ingetrokken
-   rij met een dekkende scope is voldoende om een scan te mogen
-   aanmaken. Een zojuist gegenereerd, nog niet ondertekend PDF is geen van
-   beide: er is nog geen daadwerkelijke autorisatie, en `authorized_by`
-   is nu eenmaal verplicht in die tabel. Een placeholder-waarde invullen
-   (bijv. een lege string) zou ofwel de NOT NULL-constraint schenden, ofwel
-   een consent-record aanmaken dat er via de gating-logica voor zorgt dat
-   een scan al toegestaan lijkt vóórdat de klant heeft getekend — dat is
-   precies het gat dat de consent-gating juist moet voorkomen. Vandaar een
-   eigen, ontkoppelde `consent_documents`-tabel die alleen bijhoudt welke
-   PDF's zijn gegenereerd (voor de "eerder gegenereerde documenten"-lijst
-   in de UI), zonder de betekenis van `client_consents` te verzwakken.
-   Wanneer een klant het document daadwerkelijk heeft ondertekend, leg je
-   dat nu handmatig vast in `client_consents` (via
-   `POST /api/internal/clients/:id/consent`, met `document_reference`
-   verwijzend naar het bestand) — er is geen automatische koppeling of
-   handtekeningdetectie.
+2. **`consent_documents` registreert alleen dat een PDF is gegenereerd,
+   niet dat er getekend is**: een zojuist gegenereerd document is geen
+   bewijs van daadwerkelijke, actieve toestemming — er is geen
+   handtekeningdetectie of ander mechanisme dat een ondertekend document
+   herkent. De tabel dient uitsluitend om de "eerder gegenereerde
+   documenten"-lijst in de UI te vullen.
 3. **`GET /api/clients/:id/consent-pdfs/:filename`** is toegevoegd
    (niet expliciet gevraagd) zodat de lijst met eerder gegenereerde PDF's
    ook daadwerkelijk downloadbaar is vanuit de UI.

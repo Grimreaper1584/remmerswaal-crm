@@ -1,8 +1,6 @@
 // Tests for the consent-PDF dashboard feature (see docs/consent-pdf.md):
 // the generation function itself (unit-level) and the JWT-protected
-// endpoints built on top of it. Not to be confused with
-// server/__tests__/consent-gating.test.js, which covers the separate,
-// API-key-protected GVM-integration consent flow.
+// endpoints built on top of it.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
